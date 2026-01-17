@@ -1,0 +1,27 @@
+[
+    {
+        "id": "inject_on",
+        "type": "inject",
+        "z": "fa9b43b9afdbdd0b",
+        "name": "Turn ON",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 240,
+        "y": 480,
+        "wires": [
+            [
+                "tapo_on"
+            ]
+        ]
+    }
+]
