@@ -1,0 +1,28 @@
+{
+  "name": "node-red-contrib-tapo-p125m",
+  "version": "0.1.0",
+  "description": "Node-RED nodes for TP-Link Tapo P125M smart plug",
+  "license": "MIT",
+  "keywords": [
+    "node-red",
+    "tapo",
+    "tplink",
+    "p125m"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/n3bkv/node-red-contrib-tapo-p125m.git"
+  },
+  "bugs": {
+    "url": "https://github.com/n3bkv/node-red-contrib-tapo-p125m/issues"
+  },
+  "homepage": "https://github.com/n3bkv/node-red-contrib-tapo-p125m#readme",
+  "dependencies": {
+    "tp-link-tapo-connect": "^2.0.0"
+  },
+  "node-red": {
+    "nodes": {
+      "tapo-nodes": "tapo.js"
+    }
+  }
+}
