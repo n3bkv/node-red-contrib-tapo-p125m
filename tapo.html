@@ -1,0 +1,195 @@
+<script type="text/javascript">
+(function() {
+  // ---------- Config node: tapo-device ----------
+  RED.nodes.registerType("tapo-device", {
+    category: "config",
+    defaults: {
+      name: { value: "" },
+      ip: { value: "", required: true },
+      useEnv: { value: true }
+    },
+    credentials: {
+      email: { type: "text" },
+      password: { type: "password" }
+    },
+    label: function() {
+      return this.name || this.ip || "tapo-device";
+    },
+    oneditprepare: function() {
+      const $useEnv = $("#node-config-input-useEnv");
+      const $email = $("#node-config-input-email");
+      const $password = $("#node-config-input-password");
+
+      function applyCredMode() {
+        const usingEnv = $useEnv.is(":checked");
+        $email.prop("disabled", usingEnv).css("opacity", usingEnv ? 0.5 : 1.0);
+        $password.prop("disabled", usingEnv).css("opacity", usingEnv ? 0.5 : 1.0);
+      }
+      $useEnv.on("change", applyCredMode);
+      applyCredMode();
+    }
+  });
+
+  // ---------- Shared defaults for action nodes ----------
+  function actionDefaults() {
+    return {
+      name: { value: "" },
+      device: { value: "", type: "tapo-device", required: true }, // <-- config node reference
+      retries: { value: 1, validate: RED.validators.number() },
+      postDelayMs: { value: 250, validate: RED.validators.number() },
+      emitRaw: { value: false }
+    };
+  }
+
+  function registerAction(typeName, paletteLabel) {
+    RED.nodes.registerType(typeName, {
+      category: "Tapo P125M",
+      color: "#C7E9C0",
+      defaults: actionDefaults(),
+      inputs: 1,
+      outputs: 1,
+      icon: "font-awesome/fa-plug",
+      paletteLabel: paletteLabel,
+      label: function() {
+        return this.name || paletteLabel;
+      }
+    });
+  }
+
+  registerAction("tapo-turn-on", "P125M on");
+  registerAction("tapo-turn-off", "P125M off");
+  registerAction("tapo-status", "P125M status");
+})();
+</script>
+
+<!-- ===================== -->
+<!-- Config node edit pane -->
+<!-- ===================== -->
+<script type="text/html" data-template-name="tapo-device">
+  <div class="form-row">
+    <label for="node-config-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-config-input-name" placeholder="Desert Shack Plug">
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-ip"><i class="fa fa-globe"></i> IP</label>
+    <input type="text" id="node-config-input-ip" placeholder="192.168.1.11">
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-useEnv"><i class="fa fa-lock"></i> Credentials</label>
+    <input type="checkbox" id="node-config-input-useEnv" style="display:inline-block; width:auto; vertical-align:middle;">
+    <span style="margin-left:8px;">Use env vars TAPO_EMAIL / TAPO_PASSWORD</span>
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-email"><i class="fa fa-user"></i> Email</label>
+    <input type="text" id="node-config-input-email" autocomplete="off" placeholder="(stored securely; not exported)">
+  </div>
+
+  <div class="form-row">
+    <label for="node-config-input-password"><i class="fa fa-key"></i> Password</label>
+    <input type="password" id="node-config-input-password" autocomplete="new-password" placeholder="(stored securely; not exported)">
+  </div>
+
+  <div class="form-tips">
+    Tip: Leave <b>Use env vars</b> checked to keep creds out of Node-RED entirely.
+    Otherwise, Email/Password are saved in <code>flows_cred.json</code> and won’t export.
+  </div>
+</script>
+
+<script type="text/html" data-help-name="tapo-device">
+  <p>Configuration for a Tapo device (IP + credentials). Credentials are stored in Node-RED credential storage.</p>
+</script>
+
+<!-- ================= -->
+<!-- Action node panes -->
+<!-- ================= -->
+<script type="text/html" data-template-name="tapo-turn-on">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Turn plug ON">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-device"><i class="fa fa-cog"></i> Device</label>
+    <input type="text" id="node-input-device">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-retries"><i class="fa fa-refresh"></i> Retries</label>
+    <input type="number" id="node-input-retries" min="0" step="1">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-postDelayMs"><i class="fa fa-clock-o"></i> Post-action delay (ms)</label>
+    <input type="number" id="node-input-postDelayMs" min="0" step="50">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-emitRaw"><i class="fa fa-code"></i> Output</label>
+    <input type="checkbox" id="node-input-emitRaw" style="display:inline-block; width:auto; vertical-align:middle;">
+    <span style="margin-left:8px;">Include raw device info</span>
+  </div>
+</script>
+
+<script type="text/html" data-template-name="tapo-turn-off">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Turn plug OFF">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-device"><i class="fa fa-cog"></i> Device</label>
+    <input type="text" id="node-input-device">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-retries"><i class="fa fa-refresh"></i> Retries</label>
+    <input type="number" id="node-input-retries" min="0" step="1">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-postDelayMs"><i class="fa fa-clock-o"></i> Post-action delay (ms)</label>
+    <input type="number" id="node-input-postDelayMs" min="0" step="50">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-emitRaw"><i class="fa fa-code"></i> Output</label>
+    <input type="checkbox" id="node-input-emitRaw" style="display:inline-block; width:auto; vertical-align:middle;">
+    <span style="margin-left:8px;">Include raw device info</span>
+  </div>
+</script>
+
+<script type="text/html" data-template-name="tapo-status">
+  <div class="form-row">
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Get plug status">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-device"><i class="fa fa-cog"></i> Device</label>
+    <input type="text" id="node-input-device">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-retries"><i class="fa fa-refresh"></i> Retries</label>
+    <input type="number" id="node-input-retries" min="0" step="1">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-emitRaw"><i class="fa fa-code"></i> Output</label>
+    <input type="checkbox" id="node-input-emitRaw" style="display:inline-block; width:auto; vertical-align:middle;">
+    <span style="margin-left:8px;">Include raw device info</span>
+  </div>
+</script>
+
+<script type="text/html" data-help-name="tapo-turn-on">
+  <p>Turns a configured Tapo device <b>ON</b>.</p>
+</script>
+<script type="text/html" data-help-name="tapo-turn-off">
+  <p>Turns a configured Tapo device <b>OFF</b>.</p>
+</script>
+<script type="text/html" data-help-name="tapo-status">
+  <p>Reads status from a configured Tapo device.</p>
+</script>
