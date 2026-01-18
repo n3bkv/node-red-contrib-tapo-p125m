@@ -17,10 +17,22 @@
     "url": "https://github.com/n3bkv/node-red-contrib-tapo-p125m/issues"
   },
   "homepage": "https://github.com/n3bkv/node-red-contrib-tapo-p125m#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "tapo.js",
+    "tapo.html",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "examples/"
+  ],
   "dependencies": {
     "tp-link-tapo-connect": "^2.0.0"
   },
   "node-red": {
+    "version": ">=3.0.0",
     "nodes": {
       "tapo-nodes": "tapo.js"
     }
